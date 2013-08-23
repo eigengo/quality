@@ -88,7 +88,7 @@
 			</snapshots>
 			<id>central</id>
 			<name>all-releases</name>
-			<url>http://repo.maven.org</url>
+			<url>http://repo1.maven.org/maven2/</url>
 		</repository>
 	</repositories>
 	<pluginRepositories>
@@ -98,7 +98,7 @@
 			</snapshots>
 			<id>central</id>
 			<name>plugins-release</name>
-			<url>http://repo.maven.org</url>
+			<url>http://repo1.maven.org/maven2/</url>
 		</pluginRepository>
 	</pluginRepositories>
 
@@ -113,6 +113,17 @@
         -->
         <dependencies>
             <!-- compile dependencies -->
+            <dependency>
+                <groupId>com.typesafe.akka</groupId>
+                <artifactId>akka-actor_${scala.version}</artifactId>
+                <version>2.2.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.scala-lang</groupId>
+                <artifactId>scala-library</artifactId>
+                <version>${scala.version.full}</version>
+            </dependency>
 
             <!-- provided dependencies -->
 
@@ -190,7 +201,6 @@
                     <execution>
                         <configuration>
                             <includes>
-                                <!-- Include the integration tests to be run on this target -->
                                 <include>**/IntegrationTest*.java</include>
                             </includes>
                         </configuration>
