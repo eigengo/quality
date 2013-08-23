@@ -28,8 +28,7 @@ import java.util.List
  * c.call();
  * c.run();
  * c.getBean();
- * */
- *
+ * </code></pre>
  */
 @Annotation
 @AnnotationWithValue("value-for-value property")
