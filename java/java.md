@@ -390,7 +390,7 @@ class HomeController {
 
 As you can see, your application programmers are given easy to understand, easy to use approach. The Spring Framework's core operates with the well-known ``Controller`` interface (and provides the adapters). This approach not only provides clear API for the framework, but also allows the application programmers to do the most low-level approach if ever they find that the adapters provided by the framework do not meet their needs. 
 
-In addition to the overall design approaches, let's tackle simple concerns.
+In addition to the overall design approaches, let's take a look at some of the ideas expressed here in more detail.
 
 ##Scoping
 All class fields which are not constants must be declared as private. If you want to allow subclasses access to it but don't have public getter/setter methods then provide protected ones.
