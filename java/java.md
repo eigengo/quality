@@ -254,7 +254,7 @@ Notice in particular the fail-fast checks in the constructor, the ``final`` fiel
 * The class name of an exception class must end in ``Exception`` or ``Error`` depending on which it descends from.
 * Methods, fields, and variables must start with lower case and then follow the same rule as classes.
 * Abbreviations are not acronyms, so the above rule does not apply to them. For example, ``getId()`` is fine for "get the identifier".
-* Never name a method parameter the same name as a Class field (i.e., if you ever have to use this you're doing something wrong)
+* Never name a method parameter the same name as a class field (i.e., if you ever have to use this you're doing something wrong)
 
 ###Treat Acronyms as Words
 Treat acronyms and abbreviations as words in naming variables, methods, and classes. The names are much more readable:
@@ -268,7 +268,7 @@ Treat acronyms and abbreviations as words in naming variables, methods, and clas
 Both the JDK and the Scala / Akka code bases are very inconsistent with regards to acronyms, therefore, it is virtually impossible to be consistent with the code around you. Bite the bullet, and treat acronyms as words. For further justifications of this style rule, see Effective Java Item 38 and Java Puzzlers Number 68.
 
 ##Use TODO Comments
-Use TODO comments for code that is temporary, a short-term solution, or good-enough but not perfect. TODOs should include the string TODO in all caps, followed by a colon:
+Use TODO comments for code that is temporary, a short-term solution, or good-enough but not perfect. TODOs should include the string ``TODO`` in all caps, followed by a colon:
 
 ```java
 // TODO: Remove this code after the UrlTable2 has been checked in.
@@ -285,9 +285,109 @@ If your TODO is of the form "At a future date do something" make sure that you e
 #Structure
 Interfaces are used when defining a generic set of methods that needs to be implemented. Interfaces are not to be used to define behavior; the implementations of those methods should be allowed to vary as widely as is necessary for the particular concrete implementation. If your Javadoc for a method actually defines a contract for the method (e.g., under condition 1 you must do A, under condition 2 you must do B" etc.) you should be using an abstract class (see below). You should always try to keep the interfaces as succinct as possible, ideally containing exactly one method.
 
-An Abstract class is one which implements some, or all, of the methods of an interface(s) and thus defines a set of behavior that will be common to the concrete implementations of the interface(s) which extend this abstract class. As a corollary, concrete classes which do not extend this abstract class may have different behavioral implementations for those interface methods. The names of these types of classes must start with ``Abstract``.
+An abstract class is one which implements some, or all, of the methods of interfaces and thus defines a set of behavior that will be common to the concrete implementations of the interfaces which extend this abstract class. As a corollary, concrete classes which do not extend this abstract class may have different behavioral implementations for those interface methods. The names of these types of classes must start with ``Abstract``.
 
 An base class is an abstract class that does not implement an interface (with the exception of low-level language interfaces like ``java.io.Serializable`` or ``java.lang.Comparable`` and others) but instead directly defines a set of behaviors that apply to every concrete implementation of the class. Such behavioral methods are often, but not always, final methods. The names of these types of should end with ``Support``.
+
+You should always favour immutability and composition over inheritance. The single-implementation inheritance means that it is dangerous to define complex class hierarchies early in the project. You may define an abstract class for the developers' convenience, _as long as the API that requires instances of interfaces that the abstract class implements remains disconnected from that abstract class._
+
+```
+interface Alpha {
+	
+	String getUrl();
+
+}
+
+interface Beta {
+	
+	String getBody();
+
+}
+
+interface Gamma {
+	
+	List<Header> getHeaders();
+
+}
+
+abstract class AllThree implements Alpha, Beta, Gamma {
+	private final String url;
+
+	protected AllThree(String url) {
+		if (url == null) throw new IllegalArgumentException("The argument 'url' most not be null.");
+
+		this.url = url;
+	}
+	
+	public final List<Header> getHeaders() {
+		List<Header> headers = ...; // standard headers
+		headers.addAll(doGetHeaders());
+		return headers;
+	}
+
+	public final String getBody() {
+		return doGetBody();
+	}
+
+	public final String getUrl() {
+		return this.url;
+	}
+
+	protected abstract String doGetBody();
+
+	protected abstract List<Header> doGetHeaders();
+}
+
+class OverallApi {
+	
+	Result execute(Alpha alpha, Beta beta, Gamma gamma) { ... }
+
+	<A extends Alpha & Beta & Gamma> Result execute(A allThree) { ... }
+
+}
+```
+
+Notice that the class ``AllThree`` is abstract, directly implements the interfaces and exposes methods for the subclasses to implement. However, the code in ``OverallApi`` still knows "only" about the interfaces.
+
+```java
+AllThree at = new AllThree("http://www.google.com") {
+	// implement the required methods
+}
+new OverallApi.execute(at, at, at);		// OK: at implements Alpha, Beta, and Gamma
+new OverallApi.execute(at);				// OK: at conforms to ? extends Alpha & Beta & Gamma
+```
+
+##Favour simple interfaces and rich adaptors
+Express the core of your system in simple interfaces (preferrably with a single method; having multiple methods implies some kind of sequence of operations); and construct adapters to allow the programmers to become properly isolated from the code. Consider typical Spring Framework code.
+
+```java
+interface Controller {
+	HttpResponse execute(HttpRequest request);
+}
+```
+
+This interface expresses the essence of synchronous HTTP processing; however, in most cases, it is far too cumbersome for programmers to use. In Spring Framework, the typical class that can be _adapted_ to be ``Controller`` is:
+
+```java
+@Controller
+class HomeController {
+	
+	@RequestMapping(value = "/index.html", method = HttpMethod.GET)
+	public String index() {
+		return "Hello, world";
+	}
+
+	@RequestMapping(value = "/goodbye.html", method = HttpMethod.GET)
+	public String goodBye() {
+		return "Good bye";
+	}
+
+}
+```
+
+As you can see, your application programmers are given easy to understand, easy to use approach. The Spring Framework's core operates with the well-known ``Controller`` interface (and provides the adapters). This approach not only provides clear API for the framework, but also allows the application programmers to do the most low-level approach if ever they find that the adapters provided by the framework do not meet their needs. 
+
+In addition to the overall design approaches, let's tackle simple concerns.
 
 ##Scoping
 All class fields which are not constants must be declared as private. If you want to allow subclasses access to it but don't have public getter/setter methods then provide protected ones.
