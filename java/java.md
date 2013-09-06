@@ -256,6 +256,32 @@ Notice in particular the fail-fast checks in the constructor, the ``final`` fiel
 * Abbreviations are not acronyms, so the above rule does not apply to them. For example, ``getId()`` is fine for "get the identifier".
 * Never name a method parameter the same name as a Class field (i.e., if you ever have to use this you're doing something wrong)
 
+###Treat Acronyms as Words
+Treat acronyms and abbreviations as words in naming variables, methods, and classes. The names are much more readable:
+
+* ``XmlHttpRequest``, not ``XMLHTTPRequest``
+* ``getCustomerId``, not ``getCustomerID``
+* ``class Html``, not ``class HTML``
+* ``String url``, not ``String URL``
+* ``long id``, not ``long ID``
+
+Both the JDK and the Scala / Akka code bases are very inconsistent with regards to acronyms, therefore, it is virtually impossible to be consistent with the code around you. Bite the bullet, and treat acronyms as words. For further justifications of this style rule, see Effective Java Item 38 and Java Puzzlers Number 68.
+
+##Use TODO Comments
+Use TODO comments for code that is temporary, a short-term solution, or good-enough but not perfect. TODOs should include the string TODO in all caps, followed by a colon:
+
+```java
+// TODO: Remove this code after the UrlTable2 has been checked in.
+```
+
+and
+
+```java
+// TODO: Change this to use a flag instead of a constant.
+```
+
+If your TODO is of the form "At a future date do something" make sure that you either include a very specific date ("Fix by November 2005") or a very specific event ("Remove this code after all production mixers understand protocol V7."). Make sure to fail production build if ``TODO``s are found.
+
 #Structure
 Interfaces are used when defining a generic set of methods that needs to be implemented. Interfaces are not to be used to define behavior; the implementations of those methods should be allowed to vary as widely as is necessary for the particular concrete implementation. If your Javadoc for a method actually defines a contract for the method (e.g., under condition 1 you must do A, under condition 2 you must do B" etc.) you should be using an abstract class (see below). You should always try to keep the interfaces as succinct as possible, ideally containing exactly one method.
 
@@ -392,3 +418,114 @@ public class Utils {
 	public static Date stringToDate(String date) { ... }
 }
 ```
+
+##Exceptions
+Be careful to maintain all information about exceptions; be mindful that exceptions do not propagate across threads in asynchronous environments. Finally, because throwing exceptions is an expensive process, the JIT may decide to omit generating the stack trace if it notices that an exception is thrown far too frequently.
+
+```java
+for (int i = 0; i < 1000000; i++) {
+	try {
+		throw new RuntimeException("x");		// JIT may omit stack traces may be omitted for frequent throws
+	} catch (RuntimeException ex) {
+		if (ex.getStackTrace().length == 0) {
+			// this could be true!
+		}
+	}
+}
+```
+
+Throwing too many exceptions is abnormal, nevertheless, you should include the ``-XX:-OmitStackTraceInFastThrow`` JDK option for the Sun JDK.
+
+Obviously, you should _never_ swallow exceptions; if you handle an exception, always re-throw a processed exception if you need to. This is particularly useful when you wish to translate checked exception into an unchecked exception.
+
+> Anytime somebody has an empty catch clause they should have a creepy feeling. There are definitely times when it is actually the correct thing to do, but at least you have to think about it. In Java you can't escape the creepy feeling. -James Gosling
+
+The different exception handling approaches are, in order of preference:
+
+* Throw a new exception that's appropriate to your level of abstraction.
+
+	```java
+	void setServerPort(String value) throws ConfigurationException {
+	    try {
+	        serverPort = Integer.parseInt(value);
+	    } catch (NumberFormatException e) {
+	        throw new ConfigurationException("Port " + value + " is not valid.");
+	    }
+	}
+	```
+* Handle the error gracefully and substitute an appropriate value in the catch {} block.
+	```/** Set port. If value is not a valid number, 80 is substituted. */
+	void setServerPort(String value) {
+	    try {
+	        serverPort = Integer.parseInt(value);
+	    } catch (NumberFormatException e) {
+	        serverPort = 80;  // default port for server 
+	    }
+	}
+	```
+* Catch the Exception and throw a new RuntimeException. This is dangerous: only do it if you are positive that if this error occurs, the appropriate thing to do is crash.
+	```java
+	/** Set port. If value is not a valid number, die. */
+	void setServerPort(String value) {
+	    try {
+	        serverPort = Integer.parseInt(value);
+	    } catch (NumberFormatException e) {
+	        throw new RuntimeException("port " + value " is invalid, ", e);
+	    }
+	}
+	```
+* Last resort: if you are confident that actually ignoring the exception is appropriate then you may ignore it, but you must also comment why with a good reason:
+	```java
+	/** If value is not a valid number, original port number is used. */
+	void setServerPort(String value) {
+	    try {
+	        serverPort = Integer.parseInt(value);
+	    } catch (NumberFormatException e) {
+	        // Method is documented to just ignore invalid user input.
+	        // serverPort will just be unchanged.
+	    }
+	}
+	```
+
+###Don't Catch Generic Exception
+Sometimes it is tempting to be lazy when catching exceptions and do something like this:
+
+```java
+try {
+    someComplicatedIOFunction();        // may throw IOException 
+    someComplicatedParsingFunction();   // may throw ParsingException 
+    someComplicatedSecurityFunction();  // may throw SecurityException 
+    // phew, made it all the way 
+} catch (Exception e) {                 // I'll just catch all exceptions 
+    handleError();                      // with one generic handler!
+}
+```
+
+You should not do this. In almost all cases it is inappropriate to catch generic ``Exception`` or ``Throwable``, preferably not ``Throwable``, because it includes ``Error`` exceptions as well. It is very dangerous. It means that ``Exceptions`` you never expected (including ``RuntimeExceptions`` like ``ClassCastException``) end up getting caught in application-level error handling. It obscures the failure handling properties of your code. It means if someone adds a new type of Exception in the code you're calling, the compiler won't help you realize you need to handle that error differently. And in most cases you shouldn't be handling different types of exception the same way, anyway.
+
+There are rare exceptions to this rule: certain test code and top-level code where you want to catch all kinds of errors (to prevent them from showing up in a UI, or to keep a batch job running). In that case you may catch generic ``Exception`` (or ``Throwable``) and handle the error appropriately. You should think very carefully before doing this, though, and put in comments explaining why it is safe in this place.
+
+###Alternatives to catching generic Exception:
+* Catch each exception separately as separate catch blocks after a single try. This can be awkward but is still preferable to catching all Exceptions. Beware repeating too much code in the catch blocks.
+* Refactor your code to have more fine-grained error handling, with multiple try blocks. Split up the IO from the parsing, handle errors separately in each case.
+* Rethrow the exception. Many times you don't need to catch the exception at this level anyway, just let the method throw it.
+
+Remember: exceptions are your friend! When the compiler complains you're not catching an exception, don't scowl. Smile: the compiler just made it easier for you to catch runtime problems in your code.
+
+##Don't Use Finalizers
+Finalizers are a way to have a chunk of code executed when an object is garbage collected. Pros: can be handy for doing cleanup, particularly of external resources. Cons: there are no guarantees as to when a finalizer will be called, or even that it will be called at all.
+
+Decision: we don't use finalizers. In most cases, you can do what you need from a finalizer with good exception handling. If you absolutely need it, define a ``close()`` method (or the like) and document exactly when that method needs to be called. See InputStream for an example. In this case it is appropriate but not required to print a short log message from the finalizer, as long as it is not expected to flood the logs.
+
+##Fully Qualify Imports
+When you want to use class ``Bar`` from package foo,there are two possible ways to import it:
+
+* ``import foo.*;`` Pros: Potentially reduces the number of import statements.
+* ``import foo.Bar``; Pros: Makes it obvious what classes are actually used. Makes code more readable for maintainers.
+
+Decision: Use the latter for importing all framework-level code. An explicit exception is made for java standard libraries (``java.util.*``, ``java.io.*``, etc.) and unit test code (``junit.framework.*``).
+
+#Be Consistent
+Our parting thought: BE CONSISTENT. If you're editing code, take a few minutes to look at the code around you and determine its style. If they use spaces around their ``if`` clauses, you should too. If their comments have little boxes of stars around them, make your comments have little boxes of stars around them too.
+
+The point of having style guidelines is to have a common vocabulary of coding, so people can concentrate on what you're saying, rather than on how you're saying it. We present global style rules here so people know the vocabulary. But local style is also important. If code you add to a a file looks drastically different from the existing code around it, it throws readers out of their rhythm when they go to read it. Try to avoid this.
