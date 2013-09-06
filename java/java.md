@@ -225,7 +225,7 @@ public class Foo {
  	 */
  	public Foo(String name, int meaningOfLife) {
  		if (name == null) throw new IllegalArgumentException("The argument 'name' must not be null.");
- 		if (meaningOfLife < 0) throw new IllegalArgumentException("The argument 'meaningOfLife' must not be positive.");
+ 		if (meaningOfLife < 0) throw new IllegalArgumentException("The argument 'meaningOfLife' must not be negative.");
 
  		this.name = name;
  		this.meaningOfLife = meaningOfLife;
@@ -355,7 +355,7 @@ Notice that the class ``AllThree`` is abstract, directly implements the interfac
 ```java
 AllThree at = new AllThree("http://www.google.com") {
 	// implement the required methods
-}
+};
 new OverallApi.execute(at, at, at);		// OK: at implements Alpha, Beta, and Gamma
 new OverallApi.execute(at);				// OK: at conforms to ? extends Alpha & Beta & Gamma
 ```
@@ -373,7 +373,7 @@ This interface expresses the essence of synchronous HTTP processing; however, in
 
 ```java
 @Controller
-class HomeController {
+public class HomeController {
 	
 	@RequestMapping(value = "/index.html", method = HttpMethod.GET)
 	public String index() {
