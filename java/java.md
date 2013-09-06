@@ -286,11 +286,10 @@ public void work(Foo foo) {
 } 
 ```
 
-Notice the empty line after the ``null`` check, you may wish to add an IntelliJ IDEA template to do this:
+Notice the empty line after the ``null`` check, you may wish to add an IntelliJ IDEA template to do this (in _Settings_ -> _Live Templates_):
 
 ```
-
-
+if ($ARG$ == null) throw new IllegalArgumentException("Argument '$ARG$' must not be null.");
 ```
 
 Do not use ``null`` to express the difference between _valid value_ and _not there_.
