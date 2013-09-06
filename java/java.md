@@ -326,7 +326,10 @@ abstract class AllThree implements Alpha, Beta, Gamma {
 	}
 
 	public final String getBody() {
-		return doGetBody();
+		String body = doGetBody();
+		if (body == null) throw new IllegalValueException("The body must not be null.");
+
+		return body;
 	}
 
 	public final String getUrl() {
