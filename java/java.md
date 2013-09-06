@@ -274,7 +274,7 @@ All fields should be marked as final. All method variables which are not explici
 We mark method arguments and variables final as a means of documentation. It allows the developer to say "this variable should never be reassigned". If a variable is not marked as such it indicates that the developer is explicitly treating that variable differently.
 
 ##Null References
-We've had a lot of bugs that result from an unintentional use of a ``null`` reference. This document explains the problems with ``null`` and its meaning within the language. In order to avoid this, avoid returning ``null`` unless ``null`` is a semantically meaningful value. For example, in ``StringSupport.trimOrNull(String)``, ``null`` means that the reference contains no useful content, for a particular definition of useful. In contrast, methods that return collections should not--in vast majority of cases, return ``null``s, but instead return an empty collection.
+We've had a lot of bugs that result from an unintentional use of a ``null`` reference. This document explains the problems with ``null`` and its meaning within the language. In order to avoid this, avoid returning ``null`` unless ``null`` is a semantically meaningful value. For example, in ``StringSupport.trimOrNull(String)``, ``null`` means that the reference contains no useful content, for a particular definition of useful. In contrast, methods that return collections should not--in vast majority of cases--return ``null``s, but instead return an empty collection.
 
 When accepting arguments in a method, the method should fail-fast when a parameter that is required to be not null actually is ``null``. The typical pattern for this is 
 
