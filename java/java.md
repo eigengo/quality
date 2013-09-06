@@ -291,7 +291,7 @@ An base class is an abstract class that does not implement an interface (with th
 
 You should always favour immutability and composition over inheritance. The single-implementation inheritance means that it is dangerous to define complex class hierarchies early in the project. You may define an abstract class for the developers' convenience, _as long as the API that requires instances of interfaces that the abstract class implements remains disconnected from that abstract class._
 
-```
+```java
 interface Alpha {
 	
 	String getUrl();
