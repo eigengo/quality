@@ -546,7 +546,7 @@ Obviously, you should _never_ swallow exceptions; if you handle an exception, al
 The different exception handling approaches are, in order of preference:
 
 * Throw a new exception that's appropriate to your level of abstraction.
-
+	
 	```java
 	void setServerPort(String value) throws ConfigurationException {
 	    try {
@@ -557,7 +557,9 @@ The different exception handling approaches are, in order of preference:
 	}
 	```
 * Handle the error gracefully and substitute an appropriate value in the catch {} block.
-	```/** Set port. If value is not a valid number, 80 is substituted. */
+	
+	```java
+	/** Set port. If value is not a valid number, 80 is substituted. */
 	void setServerPort(String value) {
 	    try {
 	        serverPort = Integer.parseInt(value);
@@ -567,6 +569,7 @@ The different exception handling approaches are, in order of preference:
 	}
 	```
 * Catch the Exception and throw a new RuntimeException. This is dangerous: only do it if you are positive that if this error occurs, the appropriate thing to do is crash.
+	
 	```java
 	/** Set port. If value is not a valid number, die. */
 	void setServerPort(String value) {
