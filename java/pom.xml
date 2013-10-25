@@ -1,317 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.eigengo.styleguide</groupId>
-    <artifactId>parent</artifactId>
-    <packaging>pom</packaging>
-    <version>1.0-SNAPSHOT</version>
-    <name>Java Style Guide</name>
 
-    <!-- 
-        In addition to the usual properties above, Nexus requires that released artifacts be *digitally signed*
-        (you will most likely need PGP to do that) and that they include SCM connection details and the list of all developers on the project.
-        Artifactory does not care, nevertheless, we include the information here.
-    -->
-    <url>http://www.eigengo.com</url>
-    <licenses>
-        <!-- license details needs to be discussed at MSM -->
-        <license>
-            <name>Apache 2</name>
-            <url>http://www.apache.org/licenses/</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
+    <groupId>org.eigengo.quality</groupId>
+    <artifactId>java</artifactId>
+    <version>0.1-SNAPSHOT</version>
+
     <scm>
-        <url>git@github.com:eigengo/styleguide.git</url>
-        <connection>scm:git:git@github.com:eigengo/styleguide.git</connection>
+        <url>git@github.com:eigengo/quality.git</url>
+        <connection>scm:git:git@github.com:eigengo/quality.git</connection>
+        <developerConnection>scm:git:git@github.com:eigengo/quality.git</developerConnection>
+        <tag>HEAD</tag>
     </scm>
-    <!--
-        Include all developers on the project. For the ``url`` element, let's invent a ``github`` 
-        scheme for the usernames: for example ``github:@anirvanc`` or ``github:@janm399``.
-    -->
-    <developers>
-        <developer>
-            <id>janm399</id>
-            <name>Jan Machacek</name>
-            <url>github:@janm399</url>
-        </developer>
-    </developers>
 
-    <prerequisites>
-        <maven>3.0.3</maven>
-    </prerequisites>
-
-    <!-- 
-        These are the modules that make up the project. The modules will form packages (JARs, WARs and other such beasts). Be careful not to have circular dependencies; and be sure to hide as much detail of the module's structure as possible (members are public only if absolutely required, ...).
-    -->
-    <modules>
-        <!-- List of modules -->
-        <module>core</module>
-        <module>main</module>
-    </modules>
-
-    <!--
-        Typically, we specify versions of plugins and JDK. We do not set versions of individual depdencies here. (So, for example, you would not have <junit.version>1.2-FOO</junit.version> here.)
-    -->
-    <properties>
-        <maven.compiler.plugin>3.1</maven.compiler.plugin>
-        <maven.checkstyle.plugin>2.10</maven.checkstyle.plugin>
-        <maven.surefire.plugin>2.16</maven.surefire.plugin>
-        <maven.failsafe.plugin>2.16</maven.failsafe.plugin>
-        <maven.cobertura.plugin>2.5</maven.cobertura.plugin>
-        <maven.findbugs.plugin>2.5.2</maven.findbugs.plugin>
-        <maven.pmd.plugin>3.0.1</maven.pmd.plugin>
-        <sonar.maven.plugin>2.1</sonar.maven.plugin>
-        <maven.versions.plugin>1.3.1</maven.versions.plugin>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputDirectory>target</project.reporting.outputDirectory>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <java.version>1.7</java.version>
-        <scala.version>2.10</scala.version>
-        <scala.version.full>2.10.2</scala.version.full>
-
-        <!-- Consider using the following plugins
-        <maven.javadoc.plugin>2.9</maven.javadoc.plugin>
-        <maven.project.info.reports.plugin>2.6</maven.project.info.reports.plugin>
-        <maven.site.plugin>3.2</maven.site.plugin>
-        <maven.taglist.plugin>2.4</maven.taglist.plugin>
-        -->
-
-    </properties>
-
-    <!-- Repositories where to look for artifacts and plugins.  -->
-	<repositories>
-		<repository>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-			<id>central</id>
-			<name>all-releases</name>
-			<url>http://repo1.maven.org/maven2/</url>
-		</repository>
-	</repositories>
-	<pluginRepositories>
-		<pluginRepository>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-			<id>central</id>
-			<name>plugins-release</name>
-			<url>http://repo1.maven.org/maven2/</url>
-		</pluginRepository>
-	</pluginRepositories>
-
-    <!--
-        List list of managed dependencies: these are known versions of libraries that the project depends on.
-        The modules can then only say "give me the managed JUnit", and Maven looks up what we mean by
-        "managed JUnit" in this section.
-    -->
-    <dependencyManagement>
-        <!-- 
-            Note that we specify the version of the dependencies here; the modules that require any of the dependencies listed here therefore do not repeat the version, but they may set the scope from compile to test or provided or some such
-        -->
-        <dependencies>
-            <!-- compile dependencies -->
-            <dependency>
-                <groupId>com.typesafe.akka</groupId>
-                <artifactId>akka-actor_${scala.version}</artifactId>
-                <version>2.2.0</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.scala-lang</groupId>
-                <artifactId>scala-library</artifactId>
-                <version>${scala.version.full}</version>
-            </dependency>
-
-            <!-- provided dependencies -->
-
-            <!-- test-scoped dependencies -->
-            <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-                <version>4.11</version>
-            </dependency>
-            <dependency>
-                <groupId>org.mockito</groupId>
-                <artifactId>mockito-all</artifactId>
-                <version>1.9.5</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
-    <!-- 
-        This section must *never* specify "raw" dependency, that is, one that is not included in the
-        ``dependencyManagement`` section above.
-        You may, however set the scope of the dependencies that you bring in.
-    -->
-    <dependencies>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-    </dependencies>
-
-    <!-- TODO: document intentions of this entire section -->
     <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven.compiler.plugin}</version>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.4.1</version>
+                <!-- See http://maven.apache.org/maven-release/maven-release-plugin/index.html -->
                 <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
-                    <showWarnings>true</showWarnings>
-                    <showDeprecation>true</showDeprecation>
-                    <compilerArgument>-Xlint:unchecked</compilerArgument>
+                    <autoVersionSubmodules>true</autoVersionSubmodules>
+                    <!-- goals run during release:perform -->
+                    <goals>deploy</goals>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>${maven.checkstyle.plugin}</version>
-                <!-- TODO: make this multi-module based -->
-                <!-- Use -Dcheckstyle.skipExec=true to bypass -->
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>${maven.surefire.plugin}</version>
-                <executions>
-                    <execution>
-                        <id>default-test</id>
-                        <configuration>
-                            <excludes>
-                                <!-- Exclude integration tests so that they can be run on a seperate target -->
-                                <exclude>**/*IntegrationTest.java</exclude>
-                            </excludes>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <version>${maven.failsafe.plugin}</version>
-                <executions>
-                    <execution>
-                        <configuration>
-                            <includes>
-                                <include>**/IntegrationTest*.java</include>
-                            </includes>
-                        </configuration>
-                        <goals>
-                            <goal>integration-test</goal>
-                            <goal>verify</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>findbugs-maven-plugin</artifactId>
-                <version>${maven.findbugs.plugin}</version>
-                <executions>
-                    <execution>
-                        <id>default-findbugs-checks</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>cobertura-maven-plugin</artifactId>
-                <version>${maven.cobertura.plugin}</version>
-                <executions>
-                    <execution>
-                        <configuration>
-                            <check>
-                                <branchRate>100</branchRate>
-                                <lineRate>100</lineRate>
-                                <haltOnFailure>false</haltOnFailure>
-                                <totalBranchRate>100</totalBranchRate>
-                                <totalLineRate>100</totalLineRate>
-                                <packageLineRate>100</packageLineRate>
-                                <packageBranchRate>100</packageBranchRate>
-                            </check>
-                            <instrumentation>
-                                <excludes>
-                                    <!-- add list of excluded files here -->
-                                </excludes>
-                            </instrumentation>
-                        </configuration>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>clean</goal>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <!-- Use -Dcobertura.skip=true to bypass-->
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-pmd-plugin</artifactId>
-                <version>${maven.pmd.plugin}</version>
-                <configuration>
-                    <aggregate>true</aggregate>
-                    <sourceEncoding>${project.build.sourceEncoding}</sourceEncoding>
-                    <!-- The minimum tokens before a violation -->
-                    <minimumTokens>100</minimumTokens>
-                    <!-- Turn off if no xref report -->
-                    <linkXRef>true</linkXRef>
-                    <verbose>true</verbose>
-                    <targetJdk>${java.version}</targetJdk>
-                    <rulesets>
-                        <!-- We still don't use these but these are ones we should be configuring -->
-                        <ruleset>/rulesets/maven.xml</ruleset>
-                        <ruleset>/rulesets/migrating_to_junit4.xml</ruleset>
-                        <ruleset>/rulesets/design.xml</ruleset>
-                        <ruleset>/rulesets/unusedcode.xml</ruleset>
-                        <ruleset>/rulesets/typeresolution.xml</ruleset>
-                    </rulesets>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>verify</phase>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>sonar-maven-plugin</artifactId>
-                <version>${sonar.maven.plugin}</version>
             </plugin>
         </plugins>
     </build>
 
-    <reporting>
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>cobertura-maven-plugin</artifactId>
-                <version>${maven.cobertura.plugin}</version>
-                <configuration>
-                    <check/>
-                    <formats>
-                        <format>html</format>
-                        <format>xml</format>
-                    </formats>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-pmd-plugin</artifactId>
-                <version>${maven.pmd.plugin}</version>
-            </plugin>
-        </plugins>
-    </reporting>
+    <distributionManagement>
+        <repository>
+            <id>sonatype</id>
+            <name>Sonatype OSS hosting</name>
+            <url>http://oss.sonatype.org</url>
+        </repository>
+        <snapshotRepository>
+            <id>sonatype</id>
+            <name>Sonatype OSS hosting</name>
+            <url>http://oss.sonatype.org</url>
+        </snapshotRepository>
+    </distributionManagement>
 
 </project>
